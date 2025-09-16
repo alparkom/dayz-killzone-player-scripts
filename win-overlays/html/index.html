@@ -177,7 +177,9 @@
   <script>
     const { io } = require("socket.io-client");
 
-    const socket = io(serverUrl);
+    const socket = io(serverUrl, {
+      rejectUnauthorized: false
+    });
 
     socket.on("killfeed", (data) => {
       addKill(data)
