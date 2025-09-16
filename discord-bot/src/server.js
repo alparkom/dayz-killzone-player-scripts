@@ -14,8 +14,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log("Servidor escuchando en :3000");
+server.listen(8080, () => {
+  console.log("Servidor escuchando en :8080");
 });
 
 module.exports = {
