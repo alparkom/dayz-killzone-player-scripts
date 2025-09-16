@@ -3,10 +3,11 @@ const http = require("http");
 const https = require("https");
 const { Server } = require("socket.io");
 const fs = require("fs");
+const path = require("path")
 
 const options = {
-  key: fs.readFileSync("./../cert/key.pem"),
-  cert: fs.readFileSync("./../cert/cert.pem")
+  key: fs.readFileSync(path.join(__dirname, "..", "cert/key.pem")),
+  cert: fs.readFileSync(path.join(__dirname, "..", "cert/cert.pem")),
 };
 
 const app = express();
