@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>KillFeed Overlay ez</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: rgba(0, 0, 0, 0);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    #killsList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      align-items: flex-end;
+    }
+
+    .kill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(30, 30, 30, 0.85);
+      animation: fadeIn 0.5s;
+      min-height: 32px;
+      box-sizing: border-box;
+    }
+
+    .kill.vanish {
+      animation: fadeOut 0.5s forwards;
+    }
+
+    .killer {
+      color: #0f0;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .victim {
+      color: #f00;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .distance {
+      color: rgb(0, 119, 255);
+      font-weight: normal;
+      font-size: 12px;
+    }
+
+    .weapon {
+      width: 78px;
+      height: 32px;
+      object-fit: contain;
+      object-position: center;
+      clip-path: inset(20% 0 20% 0);
+    }
+
+    .weapon.unknown {
+      width: 32px;
+      height: 32px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="killsList"></div>
+
+  <script>
+    const { ipcRenderer } = require("electron");
+
+    let weaponImages = [];
+
+    ipcRenderer.on("weapons-data", (event, images) => {
+      weaponImages = images;
+    });
+  </script>
+
+  <script>
+    const serverUrl = "ws://localhost:3000"
+    const killsList = document.getElementById("killsList");
+    const kills = [];
+    const unknownWeaponImage = "./assets/weapons/unknown.png"
+    const lifetimeKillMs = 7000
+    let nextId = 1;
+
+    function addKill(killData) {
+      const kill = { ...killData, id: nextId++ };
+      kills.unshift(kill);
+      renderKills();
+
+      setTimeout(() => {
+        const index = kills.findIndex(k => k.id === kill.id);
+        if (index !== -1) {
+          kills.splice(index, 1);
+          renderKills();
+        }
+      }, lifetimeKillMs);
+    }
+
+    function renderKills() {
+      killsList.childNodes.forEach(child => {
+        const id = parseInt(child.dataset.id);
+        if (!kills.find(k => k.id === id)) {
+          child.classList.add("vanish");
+          setTimeout(() => child.remove(), 500);
+        }
+      });
+
+      kills.forEach(kill => {
+        if (!document.querySelector(`[data-id='${kill.id}']`)) {
+          const div = document.createElement("div");
+          div.classList.add("kill");
+          div.dataset.id = kill.id;
+
+          let html = ``
+
+          if (kill.distance) {
+            html += `<span class="distance">${kill.distance}m | </span>`
+          }
+
+          if (kill.killerName) {
+            html += `<span class="killer">${kill.killerName}</span>`
+          }
+
+          if (kill.weaponName) {
+            const weaponImage = weaponImages[kill.weaponName]
+            const isUnknown = !weaponImage
+            html += `<img class="weapon ${isUnknown ? "unknown" : ""}" src="${weaponImage ?? unknownWeaponImage}" />`
+          } else if (!kill.weaponName && kill.killerName && kill.victimName) {
+            html += `<img class="weapon unknown" src="${unknownWeaponImage}" />`
+          }
+
+          if (kill.victimName) {
+            html += `<span class="victim">${kill.victimName}</span>`
+          }
+
+          div.innerHTML = html
+          killsList.prepend(div);
+        }
+      });
+    }
+  </script>
+
+  <script>
+    const { io } = require("socket.io-client");
+
+    const socket = io(serverUrl);
+
+    socket.on("killfeed", (data) => {
+      addKill(data)
+    });
+  </script>
+</body>
+
+</html>
