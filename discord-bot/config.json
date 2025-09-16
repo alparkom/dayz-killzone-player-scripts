@@ -1,5 +1,5 @@
 {
-  "token": "MTQxMTYyMTg2NDcyMzQ1MjA3Ng.GGHphK.9JmiWSczC9nCjGxOsigPwRt937R-ZmB91_H0QQ",
+  "token": "",
   "clientId": "1411621864723452076",
   "guildId": "1406941452608475216",
   "allowedChannels": [
@@ -7,5 +7,8 @@
   ],
   "killZone": {
     "killfeedChannelId": "1374177861098934342"
+  },
+  "userPayload": {
+    
   }
 }
