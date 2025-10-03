@@ -76,7 +76,7 @@ function connect() {
 }
 
 function reconnect() {
-  console.log('Reintentando conexión en 5s...')
+  console.log('Reintentando conexión en 1s...')
   setTimeout(() => {
     connect()
   }, 1000)
