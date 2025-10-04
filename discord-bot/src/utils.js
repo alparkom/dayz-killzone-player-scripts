@@ -32,7 +32,7 @@ function ParseKillData(message) {
       killerName: killerName.trim(),
       victimName: victimName.trim(),
       weaponName: weaponName.trim(),
-      reason: "murder"
+      reason: "murder-by-player"
     };
   }
 
@@ -44,7 +44,7 @@ function ParseKillData(message) {
       killerName: null,
       victimName,
       weaponName: null,
-      reason: "murder"
+      reason: "murder-by-zombie"
     }
   }
 
@@ -89,18 +89,30 @@ function ParseKillData(message) {
     const [, victimName, variableText] = match;
     const possibleWeapons = [
       "EGD-5 Frag Grenade",
-      "Wolf",
       "Land Mine",
       "Claymore",
     ]
+    const possibleAnimals = [
+      "Wolf",
+    ]
     const variableTextIsWeapon = possibleWeapons.some((val) => val.toLowerCase() === variableText.toLowerCase())
+    const variableTextIsAnimal = possibleAnimals.some((val) => val.toLowerCase() === variableText.toLowerCase())
+    const variableTextIsPlayer = !variableTextIsWeapon && !variableTextIsAnimal
+
+    let reason = "unknown"
+
+    if (variableTextIsAnimal) {
+      reason = "murder-by-animal"
+    } else if (variableTextIsPlayer) {
+      reason = "murder-by-player"
+    }
 
     return {
       distance: null,
-      killerName: !variableTextIsWeapon ? variableText.trim() : null,
+      killerName: variableTextIsPlayer || variableTextIsAnimal ? variableText.trim() : null,
       victimName: victimName.trim(),
       weaponName: variableTextIsWeapon ? variableText.trim() : null,
-      reason: !variableTextIsWeapon ? "murder" : "unknown"
+      reason
     };
   }
 
@@ -125,7 +137,7 @@ function ParseKillData(message) {
       killerName: killerName.trim(),
       victimName: victimName.trim(),
       weaponName: weaponName.trim(),
-      reason: "murder",
+      reason: "murder-by-player",
     };
   }
 
@@ -162,7 +174,7 @@ function ParseKillData(message) {
       killerName: killerName.trim(),
       victimName: victimName.trim(),
       weaponName: weaponName.trim(),
-      reason: "murder",
+      reason: "murder-by-player",
     };
   }
 

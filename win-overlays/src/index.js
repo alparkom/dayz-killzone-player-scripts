@@ -31,7 +31,7 @@ app.whenReady().then(() => {
   win.setIgnoreMouseEvents(true, { forward: true });
 
   const iconPath = path.join(__dirname, "..", "taskbar.png");
-  tray = new Tray(iconPath);
+  const tray = new Tray(iconPath);
 
   const contextMenu = Menu.buildFromTemplate([
     {

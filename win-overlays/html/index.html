@@ -50,6 +50,12 @@
       font-size: 12px;
     }
 
+    .description {
+      color: rgb(152, 152, 152);
+      font-weight: bold;
+      font-size: 12px;
+    }
+
     .distance {
       color: rgb(0, 119, 255);
       font-weight: normal;
@@ -106,13 +112,18 @@
     ipcRenderer.on("weapons-data", (event, images) => {
       weaponImages = images;
     });
+
+    console.log = function (...args) {
+      const allStrings = args.map(arg => `${arg}`);
+      const formattedString = allStrings.join(' ');
+      ipcRenderer.send('log', formattedString)
+    }
   </script>
 
   <script>
     const serverUrl = "wss://186.64.121.215:443"
     const killsList = document.getElementById("killsList");
     const kills = [];
-    const unknownWeaponImage = "./assets/weapons/unknown.png"
     const lifetimeKillMs = 10000
     let nextId = 1;
 
@@ -151,26 +162,53 @@
             html += `<span class="distance">${kill.distance}m | </span>`
           }
 
-          if (kill.killerName) {
+          if (kill.killerName && kill.reason === "murder-by-player") {
             html += `<span class="killer">${kill.killerName}</span>`
           }
 
           if (kill.weaponName) {
-            const weaponImage = weaponImages[kill.weaponName]
-            const isUnknown = !weaponImage
-            html += `<img class="weapon ${isUnknown ? "unknown" : ""}" src="${weaponImage ?? unknownWeaponImage}" />`
-          } else if (!kill.weaponName && kill.killerName && kill.victimName) {
-            html += `<img class="weapon unknown" src="${unknownWeaponImage}" />`
+            let imagePath = weaponImages[kill.weaponName]
+            const isUnknown = !imagePath
+
+            if (isUnknown) {
+              imagePath = weaponImages["unknown"]
+            }
+
+            html += `<img class="weapon ${isUnknown ? "unknown" : ""}" src="${imagePath}" />`
           }
 
           if (kill.victimName) {
             html += `<span class="victim">${kill.victimName}</span>`
           }
 
+          if (kill.reason) {
+            const humanReason = GetHumanReason(kill.reason, kill.killerName)
+
+            if (humanReason) {
+              html += `<span class="description">${humanReason}</span>`
+            }
+          }
+
           div.innerHTML = html
           killsList.prepend(div);
         }
       });
+    }
+
+    function GetHumanReason(reason, extra) {
+      if (reason === "suicide") {
+        return "se suicidó"
+      } else if (reason === "dehydrated") {
+        return "murió deshidratado"
+      } else if (reason === "inanition") {
+        return "murió de hambre"
+      } else if (reason === "murder-by-zombie") {
+        return "fue asesinado por un zombie"
+      } else if (reason === "murder-by-animal") {
+        return `fue asesinado por un animal (${extra})`
+      }
+
+      return null
     }
   </script>
 
