@@ -55,9 +55,9 @@ function GetPrefixToDiscord(data) {
 }
 
 function GetHumanReasonToDiscord(data) {
-  if (data.reason === "unknown") {
+  /* if (data.reason === "unknown") {
     return "se murió"
-  }
+  } */
 
   if (data.reason === "murder") {
     return "fue asesinado"
