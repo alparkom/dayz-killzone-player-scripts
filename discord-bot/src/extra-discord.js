@@ -37,9 +37,9 @@ function GenerateMessageToDiscord(data) {
 function GetPrefixToDiscord(data) {
   let prefix = ""
 
-  if (data.killerName && data.killerName.toUpperCase().includes('[XRD]')) {
+  if (data.killerName && data.killerName.toUpperCase().includes('[ALA]')) {
     prefix += '🤯'
-  } else if (data.victimName && data.victimName.toUpperCase().includes('[XRD]')) {
+  } else if (data.victimName && data.victimName.toUpperCase().includes('[ALA]')) {
     prefix += '🤦'
   } else if (data.killerName && data.killerName.toUpperCase().includes('[CL]')) {
     prefix += '😬'
@@ -55,11 +55,7 @@ function GetPrefixToDiscord(data) {
 }
 
 function GetHumanReasonToDiscord(data) {
-  /* if (data.reason === "unknown") {
-    return "se murió"
-  } */
-
-  if (data.reason === "murder") {
+  if (data.reason === "murder-by-player") {
     return "fue asesinado"
   }
 
@@ -73,6 +69,18 @@ function GetHumanReasonToDiscord(data) {
 
   if (data.reason === "inanition") {
     return "se murió de inanición"
+  }
+
+  if (data.reason === "murder-by-zombie") {
+    return "fue asesinado por un zombie"
+  }
+
+  if (data.reason === "murder-by-animal") {
+    return `fue asesinado por un animal (${data.killerName})`
+  }
+
+  if (data.reason === "died-by-weapon") {
+    return `se murió por (${data.weaponName})`
   }
 
   return "se murió de manera desconocida"

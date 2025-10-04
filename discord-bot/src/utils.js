@@ -105,6 +105,8 @@ function ParseKillData(message) {
       reason = "murder-by-animal"
     } else if (variableTextIsPlayer) {
       reason = "murder-by-player"
+    } else if (variableTextIsWeapon) {
+      reason = "died-by-weapon"
     }
 
     return {
